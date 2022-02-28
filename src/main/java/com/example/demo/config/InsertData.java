@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 
 import com.example.demo.model.Role;
 import com.example.demo.model.User;
-import com.example.demo.repository.AuthRepository;
+import com.example.demo.repository.UserRepository;
 import com.example.demo.repository.RoleRepository;
 
 @Component
@@ -24,7 +24,7 @@ public class InsertData implements ApplicationListener<ContextRefreshedEvent>, I
 	private static final Logger logger = LoggerFactory.getLogger(InsertData.class);
 
 	@Autowired
-	private AuthRepository repos;
+	private UserRepository repos;
 
 	@Autowired
 	private RoleRepository roleRepos;
@@ -69,8 +69,6 @@ public class InsertData implements ApplicationListener<ContextRefreshedEvent>, I
 
 	private void createAdminUser() {
 		if (repos.existsByEmail("admin@gmail.com")) {
-			return;
-		} else if (repos.existsByEmail("admin@gmail.com")) {
 			return;
 		} else {
 			User admin = new User();

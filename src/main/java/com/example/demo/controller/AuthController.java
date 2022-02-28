@@ -30,11 +30,11 @@ import com.example.demo.dto.auth.RegisterDto;
 import com.example.demo.dto.auth.UserDto;
 import com.example.demo.model.Role;
 import com.example.demo.model.User;
-import com.example.demo.repository.AuthRepository;
+import com.example.demo.repository.UserRepository;
 import com.example.demo.repository.RoleRepository;
+import com.example.demo.service.UserDetailsImpl;
+import com.example.demo.service.UserService;
 import com.example.demo.utils.JwtUtils;
-import com.example.demo.utils.UserDetailsImpl;
-import com.example.demo.utils.UserService;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -46,7 +46,7 @@ public class AuthController {
 	private AuthenticationManager authenticationManager;
 
 	@Autowired
-	private AuthRepository userRepository;
+	private UserRepository userRepository;
 
 	@Autowired
 	private RoleRepository roleRepository;

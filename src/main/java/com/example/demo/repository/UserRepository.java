@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import com.example.demo.model.User;
 
 @Repository
-public interface AuthRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, Long> {
 	@Query("select entity from User entity where entity.email = ?1")
 	Optional<User> findByEmail(String email);
 
