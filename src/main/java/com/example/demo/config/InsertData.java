@@ -13,9 +13,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import com.example.demo.model.Role;
+import com.example.demo.model.Source;
 import com.example.demo.model.User;
-import com.example.demo.repository.UserRepository;
 import com.example.demo.repository.RoleRepository;
+import com.example.demo.repository.SourceRepository;
+import com.example.demo.repository.UserRepository;
+import com.example.demo.utils.Slug;
 
 @Component
 public class InsertData implements ApplicationListener<ContextRefreshedEvent>, InitializingBean {
@@ -28,6 +31,9 @@ public class InsertData implements ApplicationListener<ContextRefreshedEvent>, I
 
 	@Autowired
 	private RoleRepository roleRepos;
+
+	@Autowired
+	private SourceRepository sourceRepos;
 
 	@Autowired
 	private PasswordEncoder encoder;
@@ -44,6 +50,7 @@ public class InsertData implements ApplicationListener<ContextRefreshedEvent>, I
 		try {
 			createRoles();
 			createAdminUser();
+			createSource();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -83,6 +90,26 @@ public class InsertData implements ApplicationListener<ContextRefreshedEvent>, I
 			admin.setRoles(roles);
 			try {
 				repos.save(admin);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	private void createSource() {
+		if (sourceRepos.existsBySlug("vnexpress") || sourceRepos.existsBySlug("tuoi-tre")
+				|| sourceRepos.existsBySlug("thanh-nien")) {
+			return;
+		} else {
+			List<Source> entities = new ArrayList<Source>();
+			Source vnexpress = new Source("VnExpress", Slug.makeCode("VnExpress"), "vne_logo_rss.png");
+			Source tt = new Source("Tuổi Trẻ", Slug.makeCode("Tuổi Trẻ"), "Tuổi_Trẻ_Logo.png");
+			Source tn = new Source("Thanh Niên", Slug.makeCode("Thanh Niên"), "Thanh_Niên_logo.png");
+			entities.add(vnexpress);
+			entities.add(tt);
+			entities.add(tn);
+			try {
+				sourceRepos.saveAll(entities);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

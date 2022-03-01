@@ -29,6 +29,13 @@ public class Source extends BaseEntity {
 		super();
 	}
 
+	public Source(String name, String slug, String url_logo) {
+		super();
+		this.name = name;
+		this.slug = slug;
+		this.url_logo = url_logo;
+	}
+
 	public String getName() {
 		return name;
 	}
