@@ -74,7 +74,7 @@ public class RSSAPIController {
 			case "giao-duc":
 				rss = "giao-duc.rss";
 				break;
-			case "Khoa học":
+			case "khoa-hoc":
 				rss = "khoa-hoc.rss";
 				break;
 			default:
@@ -98,7 +98,7 @@ public class RSSAPIController {
 			case "the-thao":
 				rss = "the-thao.rss";
 				break;
-			case "Sức khoẻ":
+			case "suc-khoe":
 				rss = "suc-khoe.rss";
 				break;
 			case "giao-duc":
@@ -134,7 +134,7 @@ public class RSSAPIController {
 			case "giao-duc":
 				rss = "giao-duc-26.rss";
 				break;
-			case "cong-nghe":
+			case "khoa-hoc":
 				rss = "cong-nghe-12.rss";
 				break;
 			default:
