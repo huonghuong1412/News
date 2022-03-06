@@ -2,45 +2,35 @@ package com.example.demo.model;
 
 import java.util.List;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+//@Entity
+//@Table(name = "tbl_post")
+public class Post {
 
-@Entity
-@Table(name = "tbl_post")
-public class Post extends BaseEntity {
-
-	@Column(name = "title")
+//	@Column(name = "title")
 	private String title;
 
-	@Column(name = "slug")
+//	@Column(name = "slug")
 	private String slug;
 
-	@Column(name = "image")
+//	@Column(name = "image")
 	private String image;
 
-	@Column(name = "content", columnDefinition = "TEXT")
+//	@Column(name = "content", columnDefinition = "TEXT")
 	private String content;
 
-	@Column(name = "display")
+//	@Column(name = "display")
 	private Integer display; // 1 : show, 0: hidden
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "category_id")
+//	@ManyToOne(fetch = FetchType.LAZY)
+//	@JoinColumn(name = "category_id")
 	private NewsCategory category;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "author_id")
+//	@ManyToOne(fetch = FetchType.LAZY)
+//	@JoinColumn(name = "author_id")
 	private Author author;
 
-	@ManyToMany(cascade = CascadeType.PERSIST)
-	@JoinTable(name = "tbl_post_tag", joinColumns = @JoinColumn(name = "post_id"), inverseJoinColumns = @JoinColumn(name = "tag_id"))
+//	@ManyToMany(cascade = CascadeType.PERSIST)
+//	@JoinTable(name = "tbl_post_tag", joinColumns = @JoinColumn(name = "post_id"), inverseJoinColumns = @JoinColumn(name = "tag_id"))
 	private List<Tag> tags;
 
 	public Post() {

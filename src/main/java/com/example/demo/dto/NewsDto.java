@@ -2,15 +2,28 @@ package com.example.demo.dto;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import com.example.demo.model.News;
+import com.example.demo.model.Tag;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 public class NewsDto extends AbstractDTO<NewsDto> {
 
 	private String title;
+	private String slug;
 	private String short_description;
 	private String image;
+	private String content;
+	
+	@JsonInclude(value = Include.NON_NULL)
+	private String author_name;
+	
+	@JsonInclude(value = Include.NON_NULL)
+	private String author_slug;
 	private String url;
 	private Integer display;
 	private String createdDate;
@@ -18,6 +31,8 @@ public class NewsDto extends AbstractDTO<NewsDto> {
 	private String category_name;
 	private String source_slug;
 	private String source_name;
+	private List<String> tag_names;
+	private List<String> tag_slugs;
 
 	public NewsDto() {
 		super();
@@ -27,8 +42,12 @@ public class NewsDto extends AbstractDTO<NewsDto> {
 		super();
 		this.setId(entity.getId());
 		this.title = entity.getTitle();
+		this.slug = entity.getSlug();
 		this.short_description = entity.getShort_description();
 		this.image = entity.getImage();
+		this.content = entity.getContent();
+		this.author_name = entity.getAuthor().getName();
+		this.author_slug = entity.getAuthor().getSlug();
 		this.url = entity.getUrl();
 		this.display = entity.getDisplay();
 		this.category_slug = entity.getCategory().getSlug();
@@ -36,6 +55,14 @@ public class NewsDto extends AbstractDTO<NewsDto> {
 
 		this.source_slug = entity.getSource().getSlug();
 		this.source_name = entity.getSource().getName();
+
+		this.tag_names = new ArrayList<>();
+		this.tag_slugs = new ArrayList<>();
+		for (Tag tag : entity.getTags()) {
+			TagDto dto = new TagDto(tag);
+			this.tag_names.add(dto.getName());
+			this.tag_slugs.add(dto.getSlug());
+		}
 
 		try {
 			this.createdDate = new SimpleDateFormat("dd/MM/yyyy").format(
@@ -126,6 +153,54 @@ public class NewsDto extends AbstractDTO<NewsDto> {
 		this.source_name = source_name;
 	}
 
+	public String getSlug() {
+		return slug;
+	}
+
+	public void setSlug(String slug) {
+		this.slug = slug;
+	}
+
+	public String getContent() {
+		return content;
+	}
+
+	public void setContent(String content) {
+		this.content = content;
+	}
+
+	public String getAuthor_name() {
+		return author_name;
+	}
+
+	public void setAuthor_name(String author_name) {
+		this.author_name = author_name;
+	}
+
+	public String getAuthor_slug() {
+		return author_slug;
+	}
+
+	public void setAuthor_slug(String author_slug) {
+		this.author_slug = author_slug;
+	}
+
+	public List<String> getTag_names() {
+		return tag_names;
+	}
+
+	public void setTag_names(List<String> tag_names) {
+		this.tag_names = tag_names;
+	}
+
+	public List<String> getTag_slugs() {
+		return tag_slugs;
+	}
+
+	public void setTag_slugs(List<String> tag_slugs) {
+		this.tag_slugs = tag_slugs;
+	}
+
 	@Override
 	public String toString() {
 		return "NewsDto [title=" + title + ", short_description=" + short_description + ", image=" + image + ", url="
@@ -133,7 +208,5 @@ public class NewsDto extends AbstractDTO<NewsDto> {
 				+ ", category_name=" + category_name + ", source_slug=" + source_slug + ", source_name=" + source_name
 				+ "]";
 	}
-	
-	
 
 }

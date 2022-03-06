@@ -6,7 +6,7 @@ import java.util.Date;
 
 import com.example.demo.model.NewsCategory;
 
-public class NewsCategoryDto extends AbstractDTO<NewsCategoryDto> {
+public class CategoryDto extends AbstractDTO<CategoryDto> {
 
 	private String name;
 	private String slug;
@@ -14,11 +14,11 @@ public class NewsCategoryDto extends AbstractDTO<NewsCategoryDto> {
 	private String updatedDate;
 	private Integer display;
 
-	public NewsCategoryDto() {
+	public CategoryDto() {
 		super();
 	}
 
-	public NewsCategoryDto(NewsCategory entity) {
+	public CategoryDto(NewsCategory entity) {
 		super();
 		this.setId(entity.getId());
 		this.name = entity.getName();

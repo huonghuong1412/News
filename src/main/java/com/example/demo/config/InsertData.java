@@ -97,15 +97,15 @@ public class InsertData implements ApplicationListener<ContextRefreshedEvent>, I
 	}
 
 	private void createSource() {
-		if (sourceRepos.existsBySlug("vnexpress") || sourceRepos.existsBySlug("tuoi-tre")
+		if (sourceRepos.existsBySlug("vietnamnet") || sourceRepos.existsBySlug("tuoi-tre")
 				|| sourceRepos.existsBySlug("thanh-nien")) {
 			return;
 		} else {
 			List<Source> entities = new ArrayList<Source>();
-			Source vnexpress = new Source("VnExpress", Slug.makeCode("VnExpress"), "vne_logo_rss.png");
+			Source vietnamnet = new Source("VietNamNet", "vietnamnet", "vne_logo_rss.png");
 			Source tt = new Source("Tuổi Trẻ", Slug.makeCode("Tuổi Trẻ"), "Tuổi_Trẻ_Logo.png");
 			Source tn = new Source("Thanh Niên", Slug.makeCode("Thanh Niên"), "Thanh_Niên_logo.png");
-			entities.add(vnexpress);
+			entities.add(vietnamnet);
 			entities.add(tt);
 			entities.add(tn);
 			try {

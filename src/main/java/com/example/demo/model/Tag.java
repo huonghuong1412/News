@@ -19,7 +19,7 @@ public class Tag extends BaseEntity {
 	private String slug;
 
 	@ManyToMany(mappedBy = "tags", cascade = CascadeType.ALL)
-	private List<Post> posts;
+	private List<News> news;
 
 	public Tag(String name, String slug) {
 		super();
@@ -47,12 +47,12 @@ public class Tag extends BaseEntity {
 		this.slug = slug;
 	}
 
-	public List<Post> getPosts() {
-		return posts;
+	public List<News> getNews() {
+		return news;
 	}
 
-	public void setPosts(List<Post> posts) {
-		this.posts = posts;
+	public void setNews(List<News> news) {
+		this.news = news;
 	}
 
 }

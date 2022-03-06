@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.dto.NewsCategoryDto;
+import com.example.demo.dto.CategoryDto;
 import com.example.demo.dto.ResponseMessage;
 import com.example.demo.model.NewsCategory;
 import com.example.demo.repository.NewsCategoryRepository;
@@ -37,35 +37,35 @@ public class NewsCategoryController {
 	private NewsCategoryRepository newsCategoryRepository;
 
 	@GetMapping("")
-	public ResponseEntity<List<NewsCategoryDto>> getAllNewsCategory() {
-		List<NewsCategoryDto> result = new ArrayList<>();
+	public ResponseEntity<List<CategoryDto>> getAllNewsCategory() {
+		List<CategoryDto> result = new ArrayList<>();
 		List<NewsCategory> entities = newsCategoryRepository.findAll();
 		for (NewsCategory entity : entities) {
-			NewsCategoryDto dto = new NewsCategoryDto(entity);
+			CategoryDto dto = new CategoryDto(entity);
 			result.add(dto);
 		}
-		return new ResponseEntity<List<NewsCategoryDto>>(result, HttpStatus.OK);
+		return new ResponseEntity<List<CategoryDto>>(result, HttpStatus.OK);
 	}
 
 	@GetMapping("/all")
-	public ResponseEntity<Page<NewsCategoryDto>> getAll(@RequestParam(name = "page", defaultValue = "0") Integer page,
+	public ResponseEntity<Page<CategoryDto>> getAll(@RequestParam(name = "page", defaultValue = "0") Integer page,
 			@RequestParam(name = "limit", defaultValue = "24") Integer limit,
 			@RequestParam(name = "sortBy", defaultValue = "createdDate") String sortBy) {
 		Page<NewsCategory> list = newsCategoryRepository
 				.findAll(PageRequest.of(page, limit, Sort.by(sortBy).descending()));
-		Page<NewsCategoryDto> result = list.map(tag -> new NewsCategoryDto(tag));
-		return new ResponseEntity<Page<NewsCategoryDto>>(result, HttpStatus.OK);
+		Page<CategoryDto> result = list.map(tag -> new CategoryDto(tag));
+		return new ResponseEntity<Page<CategoryDto>>(result, HttpStatus.OK);
 	}
 	
 	@GetMapping("/{id}") 
-	public ResponseEntity<NewsCategoryDto> getById(@PathVariable Long id) {
+	public ResponseEntity<CategoryDto> getById(@PathVariable Long id) {
 		NewsCategory news = newsCategoryRepository.getById(id);
-		NewsCategoryDto result = new NewsCategoryDto(news);
-		return new ResponseEntity<NewsCategoryDto>(result, HttpStatus.OK);
+		CategoryDto result = new CategoryDto(news);
+		return new ResponseEntity<CategoryDto>(result, HttpStatus.OK);
 	}
 
 	@PostMapping("")
-	public ResponseEntity<ResponseMessage> create(@RequestBody NewsCategoryDto dto) {
+	public ResponseEntity<ResponseMessage> create(@RequestBody CategoryDto dto) {
 		if (dto != null) {
 			NewsCategory entity = null;
 			if (dto.getId() != null) {
@@ -94,7 +94,7 @@ public class NewsCategoryController {
 	}
 
 	@PutMapping(value = "/{id}")
-	public ResponseEntity<ResponseMessage> update(@RequestBody NewsCategoryDto dto, @PathVariable Long id) {
+	public ResponseEntity<ResponseMessage> update(@RequestBody CategoryDto dto, @PathVariable Long id) {
 		dto.setId(id);
 		if (dto != null) {
 			NewsCategory entity = null;

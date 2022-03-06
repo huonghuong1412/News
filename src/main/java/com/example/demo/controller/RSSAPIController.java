@@ -25,10 +25,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.dto.NewsDescription;
-import com.example.demo.model.Source;
+import com.example.demo.dto.NewsRSSResponse;
 import com.example.demo.repository.NewsRepository;
-import com.example.demo.repository.NewsSourceRepository;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -36,13 +34,10 @@ import com.example.demo.repository.NewsSourceRepository;
 public class RSSAPIController {
 
 	@Autowired
-	private NewsSourceRepository sourceRepos;
-
-	@Autowired
 	private NewsRepository newsRepos;
 
-	public static final String RSS_API_VNEXPRESS = "https://vnexpress.net/rss/";
 	public static final String RSS_API_VNEXPRESS_MOST_VIEW = "https://vnexpress.net/rss/tin-noi-bat.rss";
+	public static final String RSS_API_VIETNAMNET = "https://vietnamnet.vn/rss/";
 	public static final String RSS_API_TUOITRE = "https://tuoitre.vn/rss/";
 	public static final String RSS_API_THANHNIEN = "https://thanhnien.vn/rss/";
 
@@ -50,8 +45,8 @@ public class RSSAPIController {
 		Map<String, String> result = new HashMap<String, String>();
 		String rss = "";
 		String url = "";
-		if (source.equalsIgnoreCase("vnexpress")) {
-			url = RSS_API_VNEXPRESS;
+		if (source.equalsIgnoreCase("vietnamnet")) {
+			url = RSS_API_VIETNAMNET;
 			switch (category) {
 			case "the-gioi":
 				rss = "the-gioi.rss";
@@ -75,7 +70,7 @@ public class RSSAPIController {
 				rss = "giao-duc.rss";
 				break;
 			case "khoa-hoc":
-				rss = "khoa-hoc.rss";
+				rss = "cong-nghe.rss";
 				break;
 			default:
 				break;
@@ -158,8 +153,6 @@ public class RSSAPIController {
 
 		Map<String, String> endpoint = getEndPathUrl(source, category);
 
-		Source sourceEneitty = sourceRepos.findOneBySlug(source);
-
 		URL url = new URL(endpoint.get("url") + endpoint.get("rss"));
 
 		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -175,28 +168,57 @@ public class RSSAPIController {
 		}
 		JSONObject jsonObj = XML.toJSONObject(response.toString());
 
-		JSONArray items = jsonObj.getJSONObject("rss").getJSONObject("channel").getJSONArray("item"); // 60 items
-		JSONObject result = new JSONObject();
-		JSONObject image = new JSONObject();
-		image.put("logo", sourceEneitty.getUrl_logo());
-		image.put("name", sourceEneitty.getName());
-		image.put("slug", sourceEneitty.getSlug());
-		List<Object> obj = new ArrayList<Object>();
-		for (int i = 0; i < items.length(); i++) {
-			JSONObject item = items.getJSONObject(i);
-			String desc = item.getString("description");
-			String title = item.getString("title");
-			String link = item.getString("link");
-			if (!newsRepos.existsByUrl(link)) {
-				String html = "<html><head><title>Document</title></head>" + "<body>" + desc + "</body></html>";
-				Document document = Jsoup.parse(html);
-				Elements img = document.select("img");
-				obj.add(new NewsDescription(title, document.body().text(), img.attr("src"), link));
+		if (jsonObj.isEmpty()) {
+			return new ResponseEntity<Object>(jsonObj.toMap(), HttpStatus.OK);
+		} else {
+			JSONObject rss = new JSONObject();
+			if (source.equalsIgnoreCase("vietnamnet")) {
+//				rss = jsonObj.getJSONObject("vnn").getJSONObject("rss");
+				rss = jsonObj.getJSONObject("rss");
+			} else {
+				rss = jsonObj.getJSONObject("rss");
 			}
+			JSONObject chanel = rss.getJSONObject("channel"); // 60 items
+			JSONArray items = new JSONArray();
+			if (source.equalsIgnoreCase("vietnamnet")) {
+//				items = chanel.getJSONObject("vnn").getJSONArray("item");
+				items = chanel.getJSONArray("item");
+			} else {
+				items = chanel.getJSONArray("item");
+			}
+
+			JSONObject result = new JSONObject();
+			List<Object> obj = new ArrayList<Object>();
+			for (int i = 0; i < items.length(); i++) {
+				JSONObject item = items.getJSONObject(i);
+				String desc = item.getString("description");
+				String title = item.getString("title");
+				String link = item.getString("link");
+				String image = "";
+				if (source.equalsIgnoreCase("thanh-nien")) {
+					image = item.getString("image");
+				} else if (source.equalsIgnoreCase("vietnamnet")) {
+					image = item.getJSONObject("media:content").getString("url");
+				} else {
+					image = "";
+				}
+				if (!newsRepos.existsByUrl(link)) {
+					String html = "<html><head><title>Document</title></head>" + "<body>" + desc + "</body></html>";
+					Document document = Jsoup.parse(html);
+					Elements img = document.select("img");
+					if (source.equalsIgnoreCase("thanh-nien")) {
+						obj.add(new NewsRSSResponse(title, document.body().text(), image, link));
+					} else if (source.equalsIgnoreCase("vietnamnet")) {
+						obj.add(new NewsRSSResponse(title, document.body().text(), image, link));
+					} else {
+						obj.add(new NewsRSSResponse(title, document.body().text(), img.attr("src"), link));
+					}
+
+				}
+			}
+			result.put("items", obj);
+			return new ResponseEntity<Object>(result.toMap(), HttpStatus.OK);
 		}
-		result.put("image", image);
-		result.put("items", obj);
-		return new ResponseEntity<Object>(result.toMap(), HttpStatus.OK);
 	}
 
 	@GetMapping(value = "/most-viewed")
@@ -230,7 +252,7 @@ public class RSSAPIController {
 				String html = "<html><head><title>Document</title></head>" + "<body>" + desc + "</body></html>";
 				Document document = Jsoup.parse(html);
 				Elements img = document.select("img");
-				obj.add(new NewsDescription(title, document.body().text(), img.attr("src"), link));
+				obj.add(new NewsRSSResponse(title, document.body().text(), img.attr("src"), link));
 			}
 		}
 		result.put("items", obj);

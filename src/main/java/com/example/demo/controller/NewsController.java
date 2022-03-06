@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
@@ -28,15 +29,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.dto.NewsCrawlDetail;
 import com.example.demo.dto.NewsDto;
 import com.example.demo.dto.ResponseMessage;
 import com.example.demo.dto.SearchDto;
+import com.example.demo.model.Author;
 import com.example.demo.model.News;
 import com.example.demo.model.NewsCategory;
 import com.example.demo.model.Source;
+import com.example.demo.model.Tag;
+import com.example.demo.repository.AuthorRepository;
 import com.example.demo.repository.NewsCategoryRepository;
 import com.example.demo.repository.NewsRepository;
 import com.example.demo.repository.NewsSourceRepository;
+import com.example.demo.repository.TagsRepository;
+import com.example.demo.service.CrawlService;
+import com.example.demo.utils.Slug;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -54,6 +62,15 @@ public class NewsController {
 
 	@Autowired
 	private NewsSourceRepository sourceRepository;
+
+	@Autowired
+	private AuthorRepository authorRepos;
+
+	@Autowired
+	private TagsRepository tagRepos;
+
+	@Autowired
+	private CrawlService crawlService;
 
 	@GetMapping(value = "")
 	public ResponseEntity<Page<NewsDto>> getAllNews(@RequestParam(name = "page", defaultValue = "0") Integer page,
@@ -274,26 +291,152 @@ public class NewsController {
 		return new ResponseEntity<Page<NewsDto>>(result, HttpStatus.OK);
 	}
 
+	@GetMapping(value = "/tag/{tag}")
+	public ResponseEntity<Page<NewsDto>> getPostByTag(@PathVariable String tag,
+			@RequestParam(name = "page", defaultValue = "0") Integer page,
+			@RequestParam(name = "limit", defaultValue = "24") Integer limit,
+			@RequestParam(name = "sortBy", defaultValue = "createdDate") String sortBy) {
+		Page<News> list = newsRepository.findByTags_slug(tag,
+				PageRequest.of(page, limit, Sort.by(sortBy).descending()));
+		Page<NewsDto> result = list.map(item -> new NewsDto(item));
+		return new ResponseEntity<Page<NewsDto>>(result, HttpStatus.OK);
+	}
+
+	@GetMapping(value = "/slug/{slug}")
+	public ResponseEntity<NewsDto> getPostBySlug(@PathVariable String slug) {
+		News entity = newsRepository.findOneBySlug(slug);
+		NewsDto result = new NewsDto(entity);
+		return new ResponseEntity<NewsDto>(result, HttpStatus.OK);
+	}
+
 	@PostMapping(value = "/add")
-	public ResponseEntity<ResponseMessage> create(@RequestBody List<NewsDto> dtos) {
+	public ResponseEntity<ResponseMessage> add(@RequestBody List<NewsDto> dtos) throws IOException {
 		List<News> entities = new ArrayList<>();
 		if (dtos != null && dtos.size() > 0) {
 			for (NewsDto dto : dtos) {
 				News entity = null;
+				Tag tag = null;
 				NewsCategory category = newsCategoryRepository.findOneBySlug(dto.getCategory_slug());
 				Source source = sourceRepository.findOneBySlug(dto.getSource_slug());
+				Author author = authorRepos.findOneByName(dto.getAuthor_name());
+				List<String> tagNames = dto.getTag_names();
+				List<Tag> tags = new ArrayList<>();
+
 				if (newsRepository.existsByUrl(dto.getUrl())) {
 					entity = newsRepository.getOneByUrl(dto.getUrl());
-					return new ResponseEntity<ResponseMessage>(new ResponseMessage("SUCCESS", "Bài viết " + entity.getTitle() + " đã tồn tại!"),
+					return new ResponseEntity<ResponseMessage>(
+							new ResponseMessage("SUCCESS", "Bài viết " + entity.getTitle() + " đã tồn tại!"),
 							HttpStatus.OK);
 				} else {
 					entity = new News();
 					entity.setTitle(dto.getTitle());
+					entity.setSlug(Slug.makeSlug(dto.getTitle()));
 					entity.setShort_description(dto.getShort_description());
 					entity.setImage(dto.getImage());
+					entity.setContent(dto.getContent());
 					entity.setUrl(dto.getUrl());
 					entity.setCategory(category);
 					entity.setSource(source);
+					if (author == null) {
+						author = new Author();
+						author.setName(dto.getAuthor_name());
+						author.setSlug(Slug.makeCode(dto.getAuthor_name()));
+						author.setDisplay(1);
+						author.setCreatedDate(new Timestamp(new Date().getTime()).toString());
+						authorRepos.save(author);
+					}
+					entity.setAuthor(author);
+
+					if (tagNames != null) {
+						for (String item : tagNames) {
+							tag = tagRepos.findOneByName(item);
+							if (tag != null) {
+								tags.add(tag);
+							} else {
+								tag = new Tag();
+								tag.setName(item);
+								tag.setSlug(Slug.makeCode(item));
+								tag.setCreatedDate(new Timestamp(new Date().getTime()).toString());
+								tagRepos.save(tag);
+								tags.add(tag);
+							}
+						}
+					}
+					entity.setTags(tags);
+					entity.setDisplay(1);
+					entities.add(entity);
+				}
+			}
+			newsRepository.saveAll(entities);
+			if (entities != null && entities.size() > 0) {
+				return new ResponseEntity<ResponseMessage>(new ResponseMessage("SUCCESS", "Thêm bài viết thành công!"),
+						HttpStatus.OK);
+			}
+		}
+		return new ResponseEntity<ResponseMessage>(new ResponseMessage("FAILURE", "Thêm bài viết không thành công!"),
+				HttpStatus.BAD_REQUEST);
+
+	}
+
+	@PostMapping(value = "/create")
+	public ResponseEntity<ResponseMessage> create(@RequestBody List<NewsDto> dtos) throws IOException {
+		List<News> entities = new ArrayList<>();
+		if (dtos != null) {
+			for (NewsDto dto : dtos) {
+				News entity = null;
+				Tag tag = null;
+				NewsCategory category = newsCategoryRepository.findOneBySlug(dto.getCategory_slug());
+				Source source = sourceRepository.findOneBySlug(dto.getSource_slug());
+
+				Author authorEntity = null;
+				List<Tag> tags = new ArrayList<>();
+
+				NewsCrawlDetail detail = crawlService.getData(dto.getSource_slug(), dto.getUrl());
+
+				if (newsRepository.existsByUrl(dto.getUrl())) {
+					entity = newsRepository.getOneByUrl(dto.getUrl());
+					return new ResponseEntity<ResponseMessage>(
+							new ResponseMessage("SUCCESS", "Bài viết " + entity.getTitle() + " đã có!"), HttpStatus.OK);
+				} else {
+					entity = new News();
+					entity.setTitle(dto.getTitle());
+					entity.setSlug(Slug.makeSlug(dto.getTitle()));
+					entity.setShort_description(dto.getShort_description());
+					entity.setImage(dto.getImage());
+					entity.setContent(detail.getContent());
+					entity.setUrl(dto.getUrl());
+					entity.setCategory(category);
+					entity.setSource(source);
+
+					authorEntity = authorRepos.findOneByName(detail.getAuthor());
+
+					if (authorEntity == null) {
+						authorEntity = new Author();
+						authorEntity.setName(detail.getAuthor());
+						authorEntity.setSlug(Slug.makeCode(detail.getAuthor()));
+						authorEntity.setDisplay(1);
+						authorEntity.setCreatedDate(new Timestamp(new Date().getTime()).toString());
+						authorRepos.save(authorEntity);
+					}
+					entity.setAuthor(authorEntity);
+
+					List<String> tagNames = detail.getTags();
+					if (tagNames != null) {
+						for (String item : tagNames) {
+							tag = tagRepos.findOneByName(item);
+							if (tag != null) {
+								tags.add(tag);
+							} else {
+								tag = new Tag();
+								tag.setName(item);
+								tag.setSlug(Slug.makeCode(item));
+								tag.setCreatedDate(new Timestamp(new Date().getTime()).toString());
+								tagRepos.save(tag);
+								tags.add(tag);
+							}
+						}
+					}
+					entity.setTags(tags);
 					entity.setDisplay(1);
 					entities.add(entity);
 				}

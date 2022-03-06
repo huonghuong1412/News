@@ -1,9 +1,14 @@
 package com.example.demo.model;
 
+import java.util.List;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
@@ -14,6 +19,9 @@ public class News extends BaseEntity {
 	@Column(name = "title")
 	private String title;
 
+	@Column(name = "slug")
+	private String slug;
+
 	@Column(name = "short_description", columnDefinition = "TEXT")
 	private String short_description;
 
@@ -22,6 +30,9 @@ public class News extends BaseEntity {
 
 	@Column(name = "image")
 	private String image;
+
+	@Column(name = "content", columnDefinition = "TEXT")
+	private String content;
 
 	@Column(name = "display")
 	private Integer display; // 1 : show, 0: hidden
@@ -33,6 +44,14 @@ public class News extends BaseEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "source_id")
 	private Source source;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "author_id")
+	private Author author;
+
+	@ManyToMany(cascade = CascadeType.PERSIST)
+	@JoinTable(name = "tbl_news_tag", joinColumns = @JoinColumn(name = "news_id"), inverseJoinColumns = @JoinColumn(name = "tag_id"))
+	private List<Tag> tags;
 
 	public News() {
 		super();
@@ -92,6 +111,38 @@ public class News extends BaseEntity {
 
 	public void setSource(Source source) {
 		this.source = source;
+	}
+
+	public Author getAuthor() {
+		return author;
+	}
+
+	public void setAuthor(Author author) {
+		this.author = author;
+	}
+
+	public String getSlug() {
+		return slug;
+	}
+
+	public void setSlug(String slug) {
+		this.slug = slug;
+	}
+
+	public String getContent() {
+		return content;
+	}
+
+	public void setContent(String content) {
+		this.content = content;
+	}
+
+	public List<Tag> getTags() {
+		return tags;
+	}
+
+	public void setTags(List<Tag> tags) {
+		this.tags = tags;
 	}
 
 }

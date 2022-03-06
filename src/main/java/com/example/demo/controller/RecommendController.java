@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -12,11 +14,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.dto.PostDto;
+import com.example.demo.dto.NewsDto;
 import com.example.demo.dto.Recommend;
-import com.example.demo.model.Post;
+import com.example.demo.model.News;
 import com.example.demo.model.Tag;
-import com.example.demo.repository.PostRepository;
+import com.example.demo.repository.NewsRepository;
 import com.example.demo.utils.ContentBased;
 
 @CrossOrigin(origins = "*")
@@ -25,21 +27,21 @@ import com.example.demo.utils.ContentBased;
 public class RecommendController {
 
 	@Autowired
-	private PostRepository postRepos;
+	private NewsRepository repos;
 
-	@GetMapping(value = "/{slug}")
-	public ResponseEntity<?> getSimilarListProduct(@PathVariable String slug) {
+	@GetMapping(value = "/{category}/{slug}")
+	public ResponseEntity<?> getSimilarListProduct(@PathVariable String category, @PathVariable String slug) {
 
-		Post entity = postRepos.findOneBySlug(slug);
+		News entity = repos.findOneBySlug(slug);
 
 		List<List<String>> documents = new ArrayList<List<String>>();
-		List<Post> entities = postRepos.getList();
-		List<PostDto> dtos = new ArrayList<PostDto>();
-		for (Post e : entities) {
-			dtos.add(new PostDto(e));
+		List<News> entities = repos.getList(category, PageRequest.of(0, 100, Sort.by("createdDate").descending()));
+		List<NewsDto> dtos = new ArrayList<>();
+		for (News e : entities) {
+			dtos.add(new NewsDto(e));
 		}
 
-		for (PostDto item : dtos) {
+		for (NewsDto item : dtos) {
 			List<String> listTags = new ArrayList<String>();
 			for (int i = 0; i < item.getTag_slugs().size(); i++) {
 				listTags.add(item.getTag_slugs().get(i));
@@ -57,15 +59,15 @@ public class RecommendController {
 		}
 		List<Recommend> list = ContentBased.similarByTags(tagList, documents);
 
-		List<PostDto> result = new ArrayList<>();
+		List<NewsDto> result = new ArrayList<>();
 		int result_size = list.size();
 		if (result_size >= 3) {
 			for (int i = 0; i < result_size; i++) {
-				Post p = postRepos.getById(dtos.get(list.get(i).getIndex()).getId());
-				PostDto pDto = new PostDto(p);
+				News p = repos.getById(dtos.get(list.get(i).getIndex()).getId());
+				NewsDto pDto = new NewsDto(p);
 				result.add(pDto);
 			}
-			return new ResponseEntity<List<PostDto>>(result, HttpStatus.OK);
+			return new ResponseEntity<List<NewsDto>>(result, HttpStatus.OK);
 		} else {
 			return new ResponseEntity<>(null, HttpStatus.OK);
 		}

@@ -1,9 +1,6 @@
 package com.example.demo.dto;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import com.example.demo.model.Post;
@@ -30,7 +27,6 @@ public class PostDto extends AbstractDTO<PostDto> {
 
 	public PostDto(Post entity) {
 		super();
-		this.setId(entity.getId());
 		this.title = entity.getTitle();
 		this.slug = entity.getSlug();
 		this.image = entity.getImage();
@@ -47,13 +43,6 @@ public class PostDto extends AbstractDTO<PostDto> {
 			TagDto dto = new TagDto(tag);
 			this.tag_names.add(dto.getName());
 			this.tag_slugs.add(dto.getSlug());
-		}
-
-		try {
-			this.createdDate = new SimpleDateFormat("dd/MM/yyyy").format(
-					new Date(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS").parse(entity.getCreatedDate()).getTime()));
-		} catch (ParseException e) {
-			e.printStackTrace();
 		}
 	}
 
