@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.dto.NewsDto;
-import com.example.demo.dto.Recommend;
+import com.example.demo.dto.SimilarResponse;
 import com.example.demo.model.News;
 import com.example.demo.model.Tag;
 import com.example.demo.repository.NewsRepository;
@@ -57,7 +57,7 @@ public class SimilarController {
 		for (int i = 0; i < tag_slugs.size(); i++) {
 			tagList.add(tag_slugs.get(i));
 		}
-		List<Recommend> list = ContentBased.similarByTags(tagList, documents);
+		List<SimilarResponse> list = ContentBased.similarByTags(tagList, documents);
 
 		List<NewsDto> result = new ArrayList<>();
 		int result_size = list.size();

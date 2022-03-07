@@ -1,14 +1,14 @@
 package com.example.demo.dto;
 
-public class Recommend {
+public class SimilarResponse {
 	private Double value;
 	private Integer index;
 
-	public Recommend() {
+	public SimilarResponse() {
 		super();
 	}
 
-	public Recommend(Double value, Integer index) {
+	public SimilarResponse(Double value, Integer index) {
 		super();
 		this.value = value;
 		this.index = index;
