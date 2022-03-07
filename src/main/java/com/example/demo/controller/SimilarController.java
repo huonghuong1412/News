@@ -61,7 +61,7 @@ public class SimilarController {
 
 		List<NewsDto> result = new ArrayList<>();
 		int result_size = list.size();
-		if (result_size >= 6) {
+		if (result_size >= 3) {
 			for (int i = 0; i < result_size; i++) {
 				News p = repos.getById(dtos.get(list.get(i).getIndex()).getId());
 				NewsDto pDto = new NewsDto(p);

@@ -40,7 +40,11 @@ public class ContentBased {
 			for (int i = 1; i < 7; i++) {
 				listResult.add(new Recommend(items.get(i).getValue(), items.get(i).getIndex()));
 			}
-		}
+		} else if (items.size() >= 3 && items.size() < 6) {
+		for (int i = 1; i < 4; i++) {
+				listResult.add(new Recommend(items.get(i).getValue(), items.get(i).getIndex()));
+			}
+}
 		return listResult;
 	}
 }
