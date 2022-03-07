@@ -378,6 +378,13 @@ public class NewsController {
 
 	}
 
+	@GetMapping(value = "/test") 
+	public ResponseEntity<Object> test() throws IOException {
+		NewsCrawlDetail detail = crawlService.getData("vnexpress", "https://vnexpress.net/biden-tien-thoai-luong-nan-truoc-suc-ep-cam-dau-nga-4435698.html");
+		return new ResponseEntity<Object>(detail, HttpStatus.OK);
+	}
+	
+	
 	@PostMapping(value = "/create")
 	public ResponseEntity<ResponseMessage> create(@RequestBody List<NewsDto> dtos) throws IOException {
 		List<News> entities = new ArrayList<>();

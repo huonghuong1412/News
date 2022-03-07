@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import com.example.demo.constant.ThanhnienConstant;
 import com.example.demo.constant.TuoitreConstant;
 import com.example.demo.constant.VietnamnetConstant;
+import com.example.demo.constant.VnexpressConstant;
 import com.example.demo.dto.NewsCrawlDetail;
 import com.example.demo.repository.NewsSourceRepository;
 
@@ -43,6 +44,7 @@ public class CrawlService implements Serializable {
 		Elements body, contentElement, paragrapths = null;
 		String content = "";
 		String title, short_description, author;
+		String[] parts;
 		List<String> tags = new ArrayList<>();
 		switch (source) {
 		case "thanh-nien":
@@ -85,7 +87,67 @@ public class CrawlService implements Serializable {
 			}
 			responseTitle += title;
 			responseShortDesc += short_description;
-			responseAuthor += author;
+			parts = author.split("[\\(\\)]");
+			responseAuthor += parts[0].trim();
+			responseContent += content;
+			for (String e : tags) {
+				responseTags.add(e);
+			}
+			break;
+		case "vnexpress":
+			body = doc.select(VnexpressConstant.BODY_VNEXPRESS);
+			title = body.select(VnexpressConstant.TITLE_VNEXPRESS).text();
+			short_description = body.select(VnexpressConstant.SHORT_DESCRIPTION_VNEXPRESS).text();
+			author = body.select(VnexpressConstant.AUTHOR_VNEXPRESS).last().text();
+			body.select(VnexpressConstant.CONTENT_VNEXPRESS).select(".list-news").remove();
+			
+			contentElement = body.select(VnexpressConstant.CONTENT_VNEXPRESS);
+			contentElement.select(".list_link").remove();
+
+			paragrapths = contentElement.select("p");
+			paragrapths.forEach((p) -> {
+                p.removeAttr("class");
+            });
+			for (Element e : paragrapths) {
+				Elements aTag = e.select("a");
+				aTag.attr("target", "_blank");
+			}
+
+			Elements figures = contentElement.select("figure");
+
+            for (Element figure : figures) {
+                Elements imagesVnExpress = figure.select("img");
+                Elements figcaptions = figure.select("figcaption");
+                figures.attr("class", "image-container");
+                figures.removeAttr("data-size");
+                figures.removeAttr("itemprop");
+                figures.removeAttr("itemscope");
+                figures.removeAttr("itemtype");
+                figures.select("meta").remove();
+                figures.select("figcaption").removeAttr("itemprop");
+                for (Element image : imagesVnExpress) {
+                    image.removeAttr("itemprop");
+                    image.removeAttr("intrinsicsize");
+                    image.removeAttr("itemprop");
+                    image.removeAttr("style");
+                    image.attr("src", image.getElementsByTag("img").attr("data-src"));
+                }
+                figure.html(imagesVnExpress.toString() + figcaptions.toString());
+            }
+            contentElement.select("p").last().remove();
+			
+			tags = new ArrayList<>();
+			Elements metaTags = doc.select("meta[name=its_tag]");
+			for (Element e : metaTags) {
+				tags.add(e.attr("content"));
+			}
+			for (Element e : contentElement) {
+				content += e.html();
+			}
+			responseTitle += title;
+			responseShortDesc += short_description;
+			parts = author.split("[\\(\\)]");
+			responseAuthor += parts[0].trim();
 			responseContent += content;
 			for (String e : tags) {
 				responseTags.add(e);
@@ -129,7 +191,8 @@ public class CrawlService implements Serializable {
 			}
 			responseTitle += title;
 			responseShortDesc += short_description;
-			responseAuthor += author;
+			parts = author.split("[\\(\\)]");
+			responseAuthor += parts[0].trim();
 			responseContent += content;
 			for (String e : tags) {
 				responseTags.add(e);
@@ -163,7 +226,8 @@ public class CrawlService implements Serializable {
 			}
 			responseTitle += title;
 			responseShortDesc += short_description;
-			responseAuthor += author;
+			parts = author.split("[\\(\\)]");
+			responseAuthor += parts[0].trim();
 			responseContent += content;
 			for (String e : tags) {
 				responseTags.add(e);

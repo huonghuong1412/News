@@ -37,6 +37,7 @@ public class RSSAPIController {
 	private NewsRepository newsRepos;
 
 	public static final String RSS_API_VNEXPRESS_MOST_VIEW = "https://vnexpress.net/rss/tin-noi-bat.rss";
+	public static final String RSS_API_VNEXPRESS = "https://vnexpress.net/rss/";
 	public static final String RSS_API_VIETNAMNET = "https://vietnamnet.vn/rss/";
 	public static final String RSS_API_TUOITRE = "https://tuoitre.vn/rss/";
 	public static final String RSS_API_THANHNIEN = "https://thanhnien.vn/rss/";
@@ -75,7 +76,38 @@ public class RSSAPIController {
 			default:
 				break;
 			}
-		} else if (source.equalsIgnoreCase("tuoi-tre")) {
+		} else if (source.equalsIgnoreCase("vnexpress")) {
+			url = RSS_API_VNEXPRESS;
+			switch (category) {
+			case "the-gioi":
+				rss = "the-gioi.rss";
+				break;
+			case "thoi-su":
+				rss = "thoi-su.rss";
+				break;
+			case "kinh-doanh":
+				rss = "kinh-doanh.rss";
+				break;
+			case "giai-tri":
+				rss = "giai-tri.rss";
+				break;
+			case "the-thao":
+				rss = "the-thao.rss";
+				break;
+			case "suc-khoe":
+				rss = "suc-khoe.rss";
+				break;
+			case "giao-duc":
+				rss = "giao-duc.rss";
+				break;
+			case "khoa-hoc":
+				rss = "khoa-hoc.rss";
+				break;
+			default:
+				break;
+			}
+		} 
+		else if (source.equalsIgnoreCase("tuoi-tre")) {
 			url = RSS_API_TUOITRE;
 			switch (category) {
 			case "the-gioi":
