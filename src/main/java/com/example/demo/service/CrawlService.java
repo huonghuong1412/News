@@ -138,8 +138,12 @@ public class CrawlService implements Serializable {
 			
 			tags = new ArrayList<>();
 			Elements metaTags = doc.select("meta[name=its_tag]");
+			
 			for (Element e : metaTags) {
-				tags.add(e.attr("content"));
+				String [] metaTagsSplit = e.attr("content").split(",");
+				for(int i = 0; i< metaTagsSplit.length; i++) {
+					tags.add(metaTagsSplit[i].trim());
+				}
 			}
 			for (Element e : contentElement) {
 				content += e.html();

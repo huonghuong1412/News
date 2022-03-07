@@ -380,7 +380,7 @@ public class NewsController {
 
 	@GetMapping(value = "/test") 
 	public ResponseEntity<Object> test() throws IOException {
-		NewsCrawlDetail detail = crawlService.getData("vnexpress", "https://vnexpress.net/biden-tien-thoai-luong-nan-truoc-suc-ep-cam-dau-nga-4435698.html");
+		NewsCrawlDetail detail = crawlService.getData("vnexpress", "https://vnexpress.net/viet-nam-de-nghi-trung-quoc-khong-vi-pham-vung-dac-quyen-kinh-te-4435157.html");
 		return new ResponseEntity<Object>(detail, HttpStatus.OK);
 	}
 	
