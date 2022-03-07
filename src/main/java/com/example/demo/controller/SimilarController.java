@@ -24,7 +24,7 @@ import com.example.demo.utils.ContentBased;
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping(value = "/api/similar")
-public class RecommendController {
+public class SimilarController {
 
 	@Autowired
 	private NewsRepository repos;
@@ -61,7 +61,7 @@ public class RecommendController {
 
 		List<NewsDto> result = new ArrayList<>();
 		int result_size = list.size();
-		if (result_size >= 3) {
+		if (result_size >= 6) {
 			for (int i = 0; i < result_size; i++) {
 				News p = repos.getById(dtos.get(list.get(i).getIndex()).getId());
 				NewsDto pDto = new NewsDto(p);

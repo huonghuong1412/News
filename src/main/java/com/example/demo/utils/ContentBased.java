@@ -36,9 +36,10 @@ public class ContentBased {
 		items.sort((Recommend o1, Recommend o2) -> o2.getValue() - o1.getValue() > 0 ? 1 : -1);
 		List<Recommend> listResult = new ArrayList<>();
 	
-//		System.out.println(items.size());
-		for (int i = 1; i < 4; i++) {
-			listResult.add(new Recommend(items.get(i).getValue(), items.get(i).getIndex()));
+		if(items.size() >= 6) {
+			for (int i = 1; i < 7; i++) {
+				listResult.add(new Recommend(items.get(i).getValue(), items.get(i).getIndex()));
+			}
 		}
 		return listResult;
 	}

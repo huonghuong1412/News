@@ -19,7 +19,7 @@ public interface NewsRepository extends JpaRepository<News, Long> {
 	
 	public News findOneBySlug(String slug);
 
-	@Query("select entity from News entity where entity.display = 1 and entity.category=?1")
+	@Query("select entity from News entity where entity.display = 1 and entity.category.slug=?1")
 	public List<News> getList(String category, Pageable pageable);
 
 	Page<News> findByTags_slug(String slug, Pageable pageable);
