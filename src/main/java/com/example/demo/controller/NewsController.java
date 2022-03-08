@@ -44,6 +44,7 @@ import com.example.demo.repository.NewsRepository;
 import com.example.demo.repository.NewsSourceRepository;
 import com.example.demo.repository.TagsRepository;
 import com.example.demo.service.CrawlService;
+import com.example.demo.service.NewsTagService;
 import com.example.demo.utils.Slug;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -71,6 +72,9 @@ public class NewsController {
 
 	@Autowired
 	private CrawlService crawlService;
+
+	@Autowired
+	private NewsTagService service;
 
 	@GetMapping(value = "")
 	public ResponseEntity<Page<NewsDto>> getAllNews(@RequestParam(name = "page", defaultValue = "0") Integer page,
@@ -138,8 +142,6 @@ public class NewsController {
 
 		sql += whereClause + orderBy;
 		sqlCount += whereClause;
-
-		System.out.println(sql);
 
 		Query q = manager.createQuery(sql, NewsDto.class);
 		Query qCount = manager.createQuery(sqlCount);
@@ -378,13 +380,6 @@ public class NewsController {
 
 	}
 
-	@GetMapping(value = "/test") 
-	public ResponseEntity<Object> test() throws IOException {
-		NewsCrawlDetail detail = crawlService.getData("vnexpress", "https://vnexpress.net/viet-nam-de-nghi-trung-quoc-khong-vi-pham-vung-dac-quyen-kinh-te-4435157.html");
-		return new ResponseEntity<Object>(detail, HttpStatus.OK);
-	}
-	
-	
 	@PostMapping(value = "/create")
 	public ResponseEntity<ResponseMessage> create(@RequestBody List<NewsDto> dtos) throws IOException {
 		List<News> entities = new ArrayList<>();
@@ -487,8 +482,8 @@ public class NewsController {
 				HttpStatus.BAD_REQUEST);
 	}
 
-	@DeleteMapping(value = "/delete/{id}")
-	public ResponseEntity<ResponseMessage> delete(@PathVariable Long id) {
+	@DeleteMapping(value = "/hidden/{id}")
+	public ResponseEntity<ResponseMessage> hide(@PathVariable Long id) {
 		if (id != null) {
 			News entity = newsRepository.getById(id);
 			if (entity.getDisplay() == 1) {
@@ -503,4 +498,21 @@ public class NewsController {
 		return new ResponseEntity<ResponseMessage>(new ResponseMessage("FAILURE", "Ẩn bài viết không thành công!"),
 				HttpStatus.BAD_REQUEST);
 	}
+
+	@DeleteMapping(value = "/delete/{id}")
+	public ResponseEntity<ResponseMessage> delete(@PathVariable Long id) {
+
+		if (id != null) {
+			Boolean result = service.deleteNews(id);
+			if (result) {
+				return new ResponseEntity<ResponseMessage>(new ResponseMessage("SUCCESS", "Xoá bài viết thành công!"),
+						HttpStatus.OK);
+			}
+			return new ResponseEntity<ResponseMessage>(new ResponseMessage("FAILURE", "Xoá bài viết không thành công!"),
+					HttpStatus.BAD_REQUEST);
+		}
+		return new ResponseEntity<ResponseMessage>(new ResponseMessage("FAILURE", "Xoá bài viết không thành công!"),
+				HttpStatus.BAD_REQUEST);
+	}
+
 }
